@@ -1,0 +1,28 @@
+<h1>Recipe app</h1>
+<p> You can add here your favorite recipes you've found online</p>
+{% if session.username %}
+
+You're logged in as {{ session.username }}
+<a href="/logout">Log out</a>
+{% else %}
+{% if session.message %}
+<p>{{ session.message }}</p>
+{% endif %}
+{% endif %}
+<div style="padding-top:10px">
+  <a href="/create">add a new recipe</a>
+</div>
+<div>
+  <h3>Recipes</h3>
+  {% if recipes|length == 0 %}
+  <div>
+    <p>No recipes<p>
+  </div>
+  {%else%}
+  {%for recipe in recipes %}
+  <div class="">
+    <a href="/{{recipe[0]}}">{{recipe[1]}}<p>
+  </div>
+  {%endfor%}
+  {%endif%}
+</div>
