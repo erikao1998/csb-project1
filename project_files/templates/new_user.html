@@ -1,4 +1,7 @@
 <form action="/sign-up" method="POST">
+  {% if session.message %}
+  <p>{{ session.message }}</p>
+  {% endif %}
   <p>username</p>
   <input type="text" name="username" />
   <p>password</p>

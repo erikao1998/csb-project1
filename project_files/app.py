@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, render_template_string, redir
 import sqlite3
 import os
 from os import getenv
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = getenv("SECRET_KEY")
@@ -31,15 +32,20 @@ def homeView():
 
 @app.route("/<id>", methods=['GET'])
 def show_recipe(id):
-    cursor = connect_db()
-    cursor.execute("SELECT * FROM Recipes WHERE recipe_id=?", (id,))
-    recipe = cursor.fetchone()
-    if recipe == None:
-        return render_template_string('<h2>The page you were looking for does not exist</h2>')
-    return render_template_string("""
-    <h2>{{recipe[1]}}</h2>
-    <p>{{recipe[2]}}</p>
-    """, recipe=recipe)
+    # if session.get("username") is not None:
+        cursor = connect_db()
+        cursor.execute("SELECT * FROM Recipes WHERE recipe_id='%s'" % (id))
+        recipe = cursor.fetchone()
+        # if recipe[3] != session["username"]:
+        #     return render_template_string('<h2>Error 403: Access denied</<h2>')
+        if recipe == None:
+            return render_template_string('<h2>Error 404: The page you were looking for does not exist</h2>')
+        return render_template_string("""
+        <h2>{{recipe[1]}}</h2>
+        <p>{{recipe[2]}}</p>
+        """, recipe=recipe)
+    # else:
+    #     return render_template('login.html')
 
 
 @app.route("/create")
@@ -93,11 +99,37 @@ def logout():
     del session["username"]
     return redirect("/")
 
+# def checkPassword(password):
+#     if len(password) < 3:
+#         return False
+#
+#     # initializing flag variable
+#     letters = False
+#     numbers = False
+#
+#     for i in password:
+#
+#         if i.isalpha():
+#             letters = True
+#
+#         if i.isdigit():
+#             numbers = True
+#
+#     return letters and numbers
+
+
+
 @app.route('/sign-up', methods=['POST'])
 def sign_up():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
+        # b_password = bytes(password, 'utf-8')
+        # password = hashlib.sha256(b_password).hexdigest()
+
+        # if checkPassword(password) == False:
+        #     session["message"] == "password must have at least three characters that include both letters and numbers"
 
         conn = sqlite3.connect('db.sqlite')
         cursor = conn.cursor()
